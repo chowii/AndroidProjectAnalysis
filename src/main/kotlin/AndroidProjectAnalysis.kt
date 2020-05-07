@@ -1,43 +1,70 @@
+import java.io.File
 import java.nio.file.FileVisitOption
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.streams.toList
 
 val projectPath = "/home/sabbib/workspace/wooliesx/"
+
+val ignoreFilesList = listOf(
+        "AndroidManifest.xml",
+        "strings.xml",
+        "dimens.xml",
+        "attrs.xml",
+        "styles.xml",
+        "integers.xml",
+        "colors.xml",
+        "android-lint-baseline.xml",
+        "detekt-baseline.xml",
+        "ids.xml"
+)
+
 fun main(args: Array<String>) {
     val projectFiles = Files.walk(Paths.get(projectPath), FileVisitOption.FOLLOW_LINKS).toList()
-    val sngFileList = projectFiles
-        .map {
-            it.toFile()
-        }
-        .filter { file ->
-            !file.isDirectory && file.path.contains("scanGoLibrary") && file.extension == "xml"
-        }
 
-    val otherFileList = projectFiles
-        .map {
-            it.toFile()
-        }
-        .filter { file ->
-            !file.isDirectory && !file.path.contains("scanGoLibrary") && !file.path.contains("/build") && file.extension == "xml"
-        }
+    val sngFileList = getSngFileList(projectFiles)
 
+    val otherFileList = getOtherFileList(projectFiles)
 
+    matchFilesBetweenPaths(sngFileList, otherFileList)
+}
+
+private fun matchFilesBetweenPaths(sngFileList: List<File>, otherFileList: List<File>) {
     sngFileList.forEach { sngFile ->
-        print("sng -> ")
-        sngFile.absolutePath.println()
         otherFileList.forEach { otherFile ->
-            if (sngFile.name == (otherFile.name)) {
-                print("other -> ")
-                otherFile.absolutePath.println()
-                println("sngFileName: ${sngFile.absolutePath} equals otherFileName: ${otherFile.absolutePath}")
-                "---------------------------------------------------------------------------------------------------------".println()
+            if (!ignoreFilesList.contains(sngFile.name) && sngFile.name == (otherFile.name)) {
+                foundMatchingFiles(otherFile, sngFile)
             }
         }
-        "=========================================================================================================".println()
     }
+}
 
-        
+private fun getOtherFileList(projectFiles: List<Path>): List<File> {
+    return projectFiles
+            .map {
+                it.toFile()
+            }
+            .filter { file ->
+                !file.isDirectory && !file.path.contains("scanGoLibrary/src/main/res/") && !file.path.contains("/build")
+            }
+}
+
+private fun getSngFileList(projectFiles: List<Path>): List<File> {
+    return projectFiles
+            .map {
+                it.toFile()
+            }
+            .filter { file ->
+                !file.isDirectory && file.path.contains("scanGoLibrary/src/main/res/") && !file.path.contains("/build")
+            }
+}
+
+private fun foundMatchingFiles(otherFile: File, sngFile: File) {
+    print("other -> ")
+    otherFile.absolutePath.println()
+    println("sngFileName: ${sngFile.absolutePath} equals otherFileName: ${otherFile.absolutePath}")
+    "---------------------------------------------------------------------------------------------------------".println()
 }
 
 
