@@ -34,13 +34,13 @@ private fun matchFilesBetweenPaths(sngFileList: List<File>, otherFileList: List<
     sngFileList.forEach { sngFile ->
         otherFileList.forEach { otherFile ->
             if (!ignoreFilesList.contains(sngFile.name) && sngFile.name == (otherFile.name)) {
-                foundMatchingFiles(otherFile, sngFile)
+                sngFile.name.println()
             }
         }
     }
 }
 
-private fun getOtherFileList(projectFiles: List<Path>): List<File> {
+internal fun getOtherFileList(projectFiles: List<Path>): List<File> {
     return projectFiles
             .map {
                 it.toFile()
@@ -50,7 +50,7 @@ private fun getOtherFileList(projectFiles: List<Path>): List<File> {
             }
 }
 
-private fun getSngFileList(projectFiles: List<Path>): List<File> {
+internal fun getSngFileList(projectFiles: List<Path>): List<File> {
     return projectFiles
             .map {
                 it.toFile()
@@ -59,14 +59,6 @@ private fun getSngFileList(projectFiles: List<Path>): List<File> {
                 !file.isDirectory && file.path.contains("scanGoLibrary/src/main/res/") && !file.path.contains("/build")
             }
 }
-
-private fun foundMatchingFiles(otherFile: File, sngFile: File) {
-    print("other -> ")
-    otherFile.absolutePath.println()
-    println("sngFileName: ${sngFile.absolutePath} equals otherFileName: ${otherFile.absolutePath}")
-    "---------------------------------------------------------------------------------------------------------".println()
-}
-
 
 fun <T> T.print(): T {
     print(this)
